@@ -87,7 +87,7 @@
             </div>
         </div>
     </div>
-    <script src="/webjars/jquery/3.0.0/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
     <script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
     <script id="pageNavigation" type="text/x-jQuery-tmpl">
@@ -160,7 +160,7 @@
             })
         }
         function searchService(page){
-            if(token === undefined){
+            if(token === undefined || token === null){
                 alert('로그인이 필요한 서비스입니다.');
                 openMenu('login')
                 return;
@@ -193,6 +193,8 @@
                         $("#pageNavigation")
                             .tmpl(data.responseJSON)
                             .appendTo("#pagination");
+                    }else{
+                        alert('검색결과가 없습니다.');
                     }
                 }
             })
@@ -202,7 +204,7 @@
         }
 
         function top10Keyword(){
-            if(token === undefined){
+            if(token === undefined || token === null){
                 alert('로그인이 필요한 서비스입니다.');
                 openMenu('login')
                 return;
@@ -226,7 +228,6 @@
         function openMenu(serviceName){
             layout.forEach(function(e){
                 if(serviceName === e)
-
                     $("#"+e).show();
                 else
                     $("#"+e).hide();
@@ -237,12 +238,6 @@
         }
         function next(page){
             searchService(page);
-        }
-        function index(){
-            if(token !== undefined)
-                openMenu('search');
-            else
-                openMenu('login');
         }
     </script>
 </body>

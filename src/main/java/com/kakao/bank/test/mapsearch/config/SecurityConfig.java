@@ -24,7 +24,6 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -41,15 +40,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final String LOGIN_ENTRY_POINT = "/login";
     private static final String LOGIN_FORM_ENTRY_POINT = "/index.html";
-    private static final String TOKEN_ENTRY_POINT = "/token";
     private static final String ERROR_ENTRY_POINT = "/error";
     private static final String ROOT_ENTRY_POINT = "/**";
 
     @Override
     public void configure(WebSecurity web) {
-        web.ignoring().antMatchers("/js/**");
-        web.ignoring().antMatchers("/css/**");
-        web.ignoring().antMatchers("/webjars/**");
+        web.ignoring().antMatchers("/resources/**");
     }
 
     @Override
@@ -67,7 +63,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers(TOKEN_ENTRY_POINT).permitAll()
                 .antMatchers(LOGIN_ENTRY_POINT).permitAll()
                 .antMatchers(ERROR_ENTRY_POINT).permitAll()
                 .antMatchers(LOGIN_FORM_ENTRY_POINT).permitAll()
@@ -95,12 +90,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public SkipPathRequestMatcher skipPathRequestMatcher() {
         return new SkipPathRequestMatcher(Arrays.asList(
                 LOGIN_ENTRY_POINT,
-                TOKEN_ENTRY_POINT,
                 ERROR_ENTRY_POINT,
-                LOGIN_FORM_ENTRY_POINT,
-                "/webjars/**",
-                "/js/**",
-                "/css/**"));
+                LOGIN_FORM_ENTRY_POINT));
     }
 
     @Bean
