@@ -81,7 +81,7 @@ public class KeywordServiceTest {
         Keyword result = keywordRepository.findByKeyword("부산");
 
         assertThat(result.getKeyword()).isEqualTo("부산");
-        assertThat(result.getSearchCount()).isEqualTo(3);
+        assertThat(result.getSearchCount()).isEqualTo(6);
 
     }
 

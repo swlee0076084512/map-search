@@ -2,6 +2,7 @@ package com.kakao.bank.test.mapsearch.domain.map.search.service;
 
 import com.kakao.bank.test.mapsearch.domain.kakao.vo.Document;
 import com.kakao.bank.test.mapsearch.domain.kakao.vo.PageResult;
+import com.kakao.bank.test.mapsearch.domain.map.service.MapSearchService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
