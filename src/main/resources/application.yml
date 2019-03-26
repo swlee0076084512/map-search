@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    platform: h2
+    url: jdbc:h2:mem:ac
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+    initialization-mode: always
+  jpa:
+    database-platform: H2
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+logging:
+  level:
+    com.kakao: INFO
+
+feign:
+  hystrix:
+    enabled: false
+  kakao:
+    url: https://dapi.kakao.com/v2
+  client:
+    config:
+      feignName:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: full
+constants:
+  kakao:
+    auth: 4abe2cc4c2a8059a3cd621ec7abacb20

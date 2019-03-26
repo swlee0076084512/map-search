@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="kakao map search">
+    <meta name="author" content="ssamzie101@gmail.com">
+    <title> Map Search by KaKao </title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+    <style>
+    body {
+    padding-top: 50px;
+    }
+    .starter-template {
+    padding: 40px 15px;
+    text-align: center;
+    }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="true" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#" onclick="index()">Map Search</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="#" onclick="openMenu('login')">Login</a></li>
+                    <li><a href="#" onclick="openMenu('search')">Map Search</a></li>
+                    <li><a href="#" onclick="openMenu('top10Keyword');top10Keyword();">Top10 Keyword</a></li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </nav>
+    <div class="container" id="login">
+        <div class="starter-template">
+            <form name='loginForm' id="loginForm" method='POST'>
+                <div class="input-group input-group-lg">
+                    <span class="input-group-addon" id="sizing-addon1">Username</span>
+                    <input type="text" name='username' id='username' value='' class="form-control" placeholder="Username" aria-describedby="sizing-addon1">
+                </div>
+                <p></p>
+                <div class="input-group input-group-lg">
+                    <span class="input-group-addon" id="sizing-addon2">Password</span>
+                    <input type="text" name='password' id='password' value='' class="form-control" placeholder="Password" aria-describedby="sizing-addon2">
+                </div>
+                <p></p>
+                <div>
+                    <button type="button" class="btn btn-default" onclick="takeToken()" value="로그인" >로그인</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="container" id="search" style="display:none">
+        <p></p>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" onclick="searchService()" type="button">Go!</button>
+                    </span>
+                    <input type="text" class="form-control" name="keyword" id="keyword" value="" placeholder="Search for...">
+                </div><!-- /input-group -->
+            </div><!-- /.col-lg-6 -->
+        </div>
+        <p></p>
+        <div id="searchResult"></div>
+        <div id="pagination"></div>
+    </div>
+    <div class="container" id="top10Keyword" style="display:none">
+        <div>
+            <div>
+                <h3>Top 10 Keywords</h3>
+                <button type="button" class="btn btn-primary" onclick="refresh()">REFRESH</button>
+            <div>
+            <p></p>
+            <div>
+                <ul class="list-group" id="keywordList"></ul>
+            </div>
+        </div>
+    </div>
+    <script src="/webjars/jquery/3.0.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script src="http://ajax.microsoft.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
+    <script id="pageNavigation" type="text/x-jQuery-tmpl">
+        <nav>
+          <ul class="pager">
+            {{if current_page > 1}}
+            <li><a href="#" onclick="prev(${current_page -1})">Previous</a></li>
+            {{/if}}
+            {{if !end}}
+            <li><a href="#" onclick="next(${current_page +1})">Next</a></li>
+            {{/if}}
+          </ul>
+        </nav>
+    </script>
+    <script id="result" type="text/x-jQuery-tmpl">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">${place_name}</h3>
+            </div>
+            <div class="panel-body">
+                <div>
+                    주소 : ${road_address_name}
+                </div>
+                <div>
+                    전화번호 : ${phone}
+                </div>
+                <div>
+                link : <a href="${place_url}">${place_url}</a>
+                </div>
+                <div>
+                    <a href="${map_api}" target="_blank" class="btn btn-primary" >지도보기</a>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script id="top10" type="text/x-jQuery-tmpl">
+          <li class="list-group-item">
+            <span class="badge">${search_count}</span>
+            ${keyword}
+          </li>
+    </script>
+    <script>
+        var layout = ["login","search","top10Keyword"];
+        var token;
+        function takeToken(){
+            var username = $('#username').val();
+            var password = $('#password').val();
+            var role = $('#role').val();
+            var user = {
+                "username" : username,
+                "password" : password,
+                "role" : role
+            }
+
+            $.ajax({
+                type : 'POST',
+                url : '/login',
+                data: JSON.stringify(user),
+                contentType : 'application/json;charset=UTF-8',
+                complete:function(data){
+                    token = data.getResponseHeader("jwt-header");
+                    if(token !== null)
+                        openMenu('search');
+                },
+                statusCode: {
+                    500: function() {
+                        alert('로그인 정보를 확인해 주세요');
+                    }
+                }
+            })
+        }
+        function searchService(page){
+            if(token === undefined){
+                alert('로그인이 필요한 서비스입니다.');
+                openMenu('login')
+                return;
+            }
+            var keyword = $("#keyword").val();
+            if(page === undefined)
+                page = "1";
+            if(keyword === ''){
+                alert('키워드를 입력해주세여');
+                return;
+            }
+
+            $.ajax({
+                type : 'GET',
+                url : '/api/v1/map/search',
+                headers: { "jwt-header" : token },
+                data: {
+                    keyword : keyword,
+                    page : page,
+                    limit : "10"
+                },
+                dataType: "json",
+                complete: function(data){
+                    $('#searchResult').html("");
+                    $('#pagination').html("");
+                    if(data.responseJSON.elements.length > 0) {
+                        $("#result")
+                            .tmpl(data.responseJSON.elements)
+                            .appendTo('#searchResult');
+                        $("#pageNavigation")
+                            .tmpl(data.responseJSON)
+                            .appendTo("#pagination");
+                    }
+                }
+            })
+        }
+        function refresh(){
+            top10Keyword();
+        }
+
+        function top10Keyword(){
+            if(token === undefined){
+                alert('로그인이 필요한 서비스입니다.');
+                openMenu('login')
+                return;
+            }
+            $('#keywordList').html("");
+            $.ajax({
+                type : 'GET',
+                url : '/api/v1/map/search/keyword/top10',
+                headers: { "jwt-header" : token },
+                dataType: "json",
+                complete: function(data){
+                    if(data.responseJSON.length > 0) {
+                        $("#top10")
+                            .tmpl(data.responseJSON)
+                            .appendTo('#keywordList')
+                    }
+                }
+            })
+        }
+
+        function openMenu(serviceName){
+            layout.forEach(function(e){
+                if(serviceName === e)
+
+                    $("#"+e).show();
+                else
+                    $("#"+e).hide();
+            });
+        }
+        function prev(page){
+            searchService(page);
+        }
+        function next(page){
+            searchService(page);
+        }
+        function index(){
+            if(token !== undefined)
+                openMenu('search');
+            else
+                openMenu('login');
+        }
+    </script>
+</body>
+</html>
