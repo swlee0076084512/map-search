@@ -12,6 +12,8 @@
  `./gradlew bootJar`
 #### Run
 `./gradlew bootRun`
+or
+`java -jar map-search-0.0.1-SNAPSHOT.jar`
 ### Web
 * URL [http://localhost:8080/index.html]`http://localhost:8080/index.html`
  
