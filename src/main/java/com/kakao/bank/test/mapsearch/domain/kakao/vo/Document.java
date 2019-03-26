@@ -1,6 +1,5 @@
 package com.kakao.bank.test.mapsearch.domain.kakao.vo;
 
-import jdk.nashorn.internal.objects.annotations.Getter;
 import lombok.Data;
 
 import static com.kakao.bank.test.mapsearch.domain.MapAPI.MAP_API_URL;
